@@ -1,16 +1,14 @@
-import { useDispatch } from "react-redux"
-import "./App.css"
-import { useAppSelector } from "./app/hooks"
+import { useAppDispatch, useAppSelector } from "./app/hooks"
 import { Board } from "./features/board/Board"
 import { initBoard, selectRemainingTiles, selectStatus } from "./features/board/boardSlice"
 
 export const App = () => {
   const status = useAppSelector(selectStatus);
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
   const tileLeft = useAppSelector(selectRemainingTiles);
 
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="min-h-screen flex flex-col bg-slate-200">
       <div className="flex justify-between p-3">
         <div className="text-red-800 text-3xl">
           Pikachu

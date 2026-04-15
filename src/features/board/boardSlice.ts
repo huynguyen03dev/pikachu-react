@@ -1,7 +1,7 @@
 import type { PayloadAction } from "@reduxjs/toolkit"
 import { createAppSlice } from "../../app/createAppSlice"
 
-interface Cell {
+export interface Cell {
   id: number,
   kind: "empty" | "tile",
   tileType: number
@@ -46,7 +46,6 @@ const createShuffledCells = (rows: number, cols: number): Cell[] => {
   const pairCount = totalCells / 2
   const tiles: number[] = []
 
-  // Build pairs: [1,1,2,2,3,3,...]
   for (let i = 0; i < pairCount; i++) {
     const tileType = (i % totalTileTypes) + 1
     tiles.push(tileType, tileType)
