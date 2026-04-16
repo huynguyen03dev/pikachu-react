@@ -1,5 +1,5 @@
 import { useAppDispatch, useAppSelector } from "../../../app/hooks";
-import { initBoard, selectStatus, selectTimeLeft } from "../boardSlice";
+import { initBoard, selectStatus, selectTimeLeft, shuffle } from "../boardSlice";
 
 export const GameHeader = () => {
 	const status = useAppSelector(selectStatus);
@@ -18,7 +18,7 @@ export const GameHeader = () => {
 				{status !== "playing" && (
 					<button onClick={() => dispatch(initBoard({}))} className="w-28 h-10 bg-gray-300 hover:bg-gray-400 active:bg-gray-500 transition-colors">Start</button>
 				)}
-				<button className="w-28 h-10 bg-gray-300 hover:bg-gray-400 active:bg-gray-500 transition-colors">Hint</button>
+				<button onClick={() => dispatch(shuffle())} className="w-28 h-10 bg-gray-300 hover:bg-gray-400 active:bg-gray-500 transition-colors">Shuffle</button>
 				{status === "playing" && (
 					<button onClick={() => dispatch(initBoard({}))} className="w-28 h-10 bg-gray-300 hover:bg-gray-400 active:bg-gray-500 transition-colors">Restart</button>
 				)}

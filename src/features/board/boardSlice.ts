@@ -38,7 +38,7 @@ const createEmptyCells = (rows: number, cols: number): Cell[] => {
   return cells;
 }
 
-function shuffle(array: any[]) {
+function shuffleRandom(array: any[]) {
   const result = [...array]
 
   for (let i = result.length - 1; i > 0; i--) {
@@ -64,7 +64,7 @@ const createShuffledCells = (rows: number, cols: number): Cell[] => {
     tiles.push(tileType, tileType)
   }
 
-  tiles = shuffle(tiles)
+  tiles = shuffleRandom(tiles)
 
   return tiles.map((tileType, id) => ({
     id,
@@ -172,6 +172,18 @@ export const boardSlice = createAppSlice({
     }),
     shuffle: create.reducer((state) => {
       // TODO: implement shuffle action
+      const tiledCells = state.cells.filter((cell) => cell.kind === "tile");
+      let typeArr: number[] = [];
+
+      for (let cell of tiledCells) {
+        typeArr.push(cell.tileType);
+      }
+
+      typeArr = shuffleRandom(typeArr);
+
+      for (let i = 0; i < typeArr.length; i++) {
+        tiledCells[i].tileType = typeArr[i];
+      }
     })
   }),
   // You can define your selectors here. These selectors receive the slice
@@ -190,7 +202,7 @@ export const boardSlice = createAppSlice({
 });
 
 // Action creators are generated for each case reducer function.
-export const { initBoard, doSelectCell, loseGame, tick } = boardSlice.actions;
+export const { initBoard, doSelectCell, loseGame, tick, shuffle } = boardSlice.actions;
 
 export const { 
   selectCells, 
