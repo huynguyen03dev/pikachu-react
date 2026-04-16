@@ -1,5 +1,6 @@
 import type { PayloadAction } from "@reduxjs/toolkit"
 import { createAppSlice } from "../../app/createAppSlice"
+import { getPath } from "./pathfinding"
 
 export interface Cell {
   id: number,
@@ -16,7 +17,9 @@ export type BoardSliceState = {
   remainingTiles: number,
   shuffleLeft: number,
   hintLeft: number,
-  moveCount: number
+  moveCount: number,
+  timeLimit: number,
+  timeLeft: number
 }
 
 const DEFAULT_ROWS = 8
@@ -35,6 +38,16 @@ const createEmptyCells = (rows: number, cols: number): Cell[] => {
   return cells;
 }
 
+function shuffle(array: any[]) {
+  const result = [...array]
+
+  for (let i = result.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [result[i], result[j]] = [result[j], result[i]];
+  }
+
+  return result;
+}
 // Shuffle the tiles
 const createShuffledCells = (rows: number, cols: number): Cell[] => {
   const totalCells = rows * cols
@@ -44,17 +57,14 @@ const createShuffledCells = (rows: number, cols: number): Cell[] => {
 
   const totalTileTypes = 6 
   const pairCount = totalCells / 2
-  const tiles: number[] = []
+  let tiles: number[] = []
 
   for (let i = 0; i < pairCount; i++) {
     const tileType = (i % totalTileTypes) + 1
     tiles.push(tileType, tileType)
   }
 
-  for (let i = tiles.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1))
-      ;[tiles[i], tiles[j]] = [tiles[j], tiles[i]]
-  }
+  tiles = shuffle(tiles)
 
   return tiles.map((tileType, id) => ({
     id,
@@ -72,7 +82,9 @@ const initialState: BoardSliceState = {
   remainingTiles: DEFAULT_COLS * DEFAULT_ROWS,
   shuffleLeft: 3,
   hintLeft: 3,
-  moveCount: 0
+  moveCount: 0,
+  timeLimit: 200,
+  timeLeft: 200,
 }
 
 // If you are not using async thunks you can use the standalone `createSlice`.
@@ -92,9 +104,11 @@ export const boardSlice = createAppSlice({
         state.shuffleLeft = 3
         state.hintLeft = 3
         state.moveCount = 0
+        state.timeLimit = 200
+        state.timeLeft = 200
     }),
     doSelectCell: create.reducer((state, action: PayloadAction<number>) => {
-      const cellId = action.payload
+      const cellId = action.payload;
       if (state.selectedCellIds.length === 2) {
         return;
       }
@@ -115,15 +129,19 @@ export const boardSlice = createAppSlice({
       }
 
       if (state.selectedCellIds.length === 1) {
-        if (state.selectedCellIds[0] === cellId) {
+        const firstSelectedCellId = state.selectedCellIds[0]
+        if (firstSelectedCellId === cellId) {
           // click the same cell, deselect it
           state.selectedCellIds = [];
           return;
         }
 
-        if (state.cells[state.selectedCellIds[0]].tileType === targetCell.tileType) {
+        const path = getPath(state.cells, state.rows, state.cols, firstSelectedCellId, targetCell.id)
+        console.log(path);
+        if (state.cells[firstSelectedCellId].tileType === targetCell.tileType && path) {
+          console.log()
           // match
-          state.cells[state.selectedCellIds[0]].kind = "empty"
+          state.cells[firstSelectedCellId].kind = "empty"
           state.cells[cellId].kind = "empty"
           state.remainingTiles -= 2
           state.selectedCellIds = []
@@ -137,6 +155,24 @@ export const boardSlice = createAppSlice({
         }
       }
     }),
+    loseGame: create.reducer((state) => {
+      state.status = "lost"
+    }),
+    tick: create.reducer((state) => {
+      if (state.status !== "playing") {
+        return;
+      }
+      
+      if (state.timeLeft <= 0) {
+        state.status = "lost"
+        return;
+      }
+
+      state.timeLeft -= 1;
+    }),
+    shuffle: create.reducer((state) => {
+      // TODO: implement shuffle action
+    })
   }),
   // You can define your selectors here. These selectors receive the slice
   // state as their first argument.
@@ -147,14 +183,26 @@ export const boardSlice = createAppSlice({
     selectRemainingTiles: board => board.remainingTiles,
     selectShuffleLeft: board => board.shuffleLeft,
     selectHintLeft: board => board.hintLeft,
-    selectMoveCount: board => board.moveCount
+    selectMoveCount: board => board.moveCount,
+    selectTimeLimit: board => board.timeLimit,
+    selectTimeLeft: board => board.timeLeft
   },
 });
 
 // Action creators are generated for each case reducer function.
-export const { initBoard, doSelectCell } = boardSlice.actions;
+export const { initBoard, doSelectCell, loseGame, tick } = boardSlice.actions;
 
-export const { selectCells, selectSelectedCellIds, selectStatus, selectHintLeft, selectRemainingTiles, selectShuffleLeft, selectMoveCount } = boardSlice.selectors;
+export const { 
+  selectCells, 
+  selectSelectedCellIds, 
+  selectStatus, 
+  selectHintLeft, 
+  selectRemainingTiles, 
+  selectShuffleLeft, 
+  selectMoveCount, 
+  selectTimeLimit, 
+  selectTimeLeft 
+} = boardSlice.selectors;
 
 // We can also write thunks by hand, which may contain both sync and async logic.
 // Here's an example of conditionally dispatching actions based on current state.
