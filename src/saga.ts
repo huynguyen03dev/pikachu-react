@@ -1,8 +1,9 @@
 import { PayloadAction } from '@reduxjs/toolkit'
 import { SagaIterator } from 'redux-saga'
-import { put, takeEvery, all, select, delay } from 'redux-saga/effects'
+import { put, takeEvery, all, select, delay, takeLatest } from 'redux-saga/effects'
 import { Cell, doSelectCell, initBoard, removeMatchPair, removeSelection, selectCells, selectCols, selectRows, selectSelectedCellIds, selectStatus, shuffle, updateMatchPath } from './features/board/boardSlice'
 import { getPath } from './features/board/pathfinding'
+import { selectMatchablePair } from './features/board/boardSelect'
 
 export const SELLECT_CELL = "SELECT_CELL";
 export const CHECK_MATCHABLE_PAIR = "CHECK_MATCHABLE_PAIR";
@@ -71,23 +72,6 @@ export function* watchSelectCell() {
     yield takeEvery(SELLECT_CELL, selectCell) 
 }
 
-const findAnyMatchablePair = (cells: Cell[], rows: number, cols: number): { x: number, y: number } | null => {
-  const tileCells = cells.filter(cell => cell.kind === "tile");
-
-  for (let i = 0; i < tileCells.length; i++) {
-    for (let j = i + 1; j < tileCells.length; j++) {
-      if (tileCells[i].tileType !== tileCells[j].tileType) {
-        continue;
-      }
-
-      if (getPath(cells, rows, cols, tileCells[i].id, tileCells[j].id)) {
-        return { x: tileCells[i].id, y: tileCells[j].id };
-      }
-    }
-  }
-
-  return null;
-}
 
 export function* checkForMatchablePair() : SagaIterator {
     const status = yield select(selectStatus);
@@ -101,7 +85,7 @@ export function* checkForMatchablePair() : SagaIterator {
     const rows = yield select(selectRows);
     const cols = yield select(selectCols);
 
-    const pair = findAnyMatchablePair(cells, rows, cols);
+    const pair = yield select(selectMatchablePair);
 
     console.log(
         `Checking for matchable pair, found: ${pair?.x}, ${pair?.y} ` + 
@@ -126,7 +110,7 @@ export function* checkForMatchablePair() : SagaIterator {
 }
 
 export function* watchCheckForMatchablePair() {
-    yield takeEvery(CHECK_MATCHABLE_PAIR, checkForMatchablePair) 
+    yield takeLatest(CHECK_MATCHABLE_PAIR, checkForMatchablePair) 
 }
 
 export function* initGame(action: PayloadAction<{ rows?: number, cols?: number }>) : SagaIterator {
@@ -139,7 +123,7 @@ export function* initGame(action: PayloadAction<{ rows?: number, cols?: number }
 }
 
 export function* watchInitGame() {
-    yield takeEvery(INIT_GAME, initGame) 
+    yield takeLatest(INIT_GAME, initGame) 
 }
 
 export function* shuffleBoard() : SagaIterator {
@@ -151,7 +135,7 @@ export function* shuffleBoard() : SagaIterator {
 }
 
 export function* watchShuffleBoard() {
-    yield takeEvery(SHUFFLE_BOARD, shuffleBoard) 
+    yield takeLatest(SHUFFLE_BOARD, shuffleBoard) 
 }
 
 // notice how we now only export the rootSaga
