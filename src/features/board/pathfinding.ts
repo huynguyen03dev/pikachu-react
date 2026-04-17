@@ -150,7 +150,13 @@ function findRelativePCells(cell: PCell, end: PCell, grid: PGrid): PCell[] {
 		}
 	}
 
+    result.sort((a, b) => calculateDistance(a, end) - calculateDistance(b, end));
+
 	return result;
+}
+
+function calculateDistance(point1: { x: number, y: number}, point2: { x: number, y: number}) : number {
+    return Math.sqrt(Math.pow(point2.x - point1.x, 2) + Math.pow(point2.y - point1.y, 2));
 }
 
 function findEndNodePath(current: PNode, end: PCell, grid: PGrid) : PNode | null {
