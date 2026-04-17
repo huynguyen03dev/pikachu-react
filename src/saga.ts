@@ -1,7 +1,7 @@
 import { PayloadAction } from '@reduxjs/toolkit'
 import { SagaIterator } from 'redux-saga'
 import { put, takeEvery, all, select, delay } from 'redux-saga/effects'
-import { Cell, doSelectCell, initBoard, removeMatchPair, removeSelection, selectCells, selectCols, selectRows, selectSelectedCellIds, shuffle, updateMatchPath } from './features/board/boardSlice'
+import { Cell, doSelectCell, initBoard, removeMatchPair, removeSelection, selectCells, selectCols, selectRows, selectSelectedCellIds, selectStatus, shuffle, updateMatchPath } from './features/board/boardSlice'
 import { getPath } from './features/board/pathfinding'
 
 export const SELLECT_CELL = "SELECT_CELL";
@@ -90,6 +90,13 @@ const findAnyMatchablePair = (cells: Cell[], rows: number, cols: number): { x: n
 }
 
 export function* checkForMatchablePair() : SagaIterator {
+    const status = yield select(selectStatus);
+
+    if (status !== "playing") {
+        // Only check for matchable pair when the game is in playing status
+        return;
+    }
+
     const cells: Cell[] = yield select(selectCells);
     const rows = yield select(selectRows);
     const cols = yield select(selectCols);

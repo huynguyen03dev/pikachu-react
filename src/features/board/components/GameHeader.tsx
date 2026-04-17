@@ -6,24 +6,31 @@ export const GameHeader = () => {
 	const status = useAppSelector(selectStatus);
 	const dispatch = useAppDispatch();
 	const timeLeft = useAppSelector(selectTimeLeft);
+	const remainingTiles = useAppSelector(state => state.board.remainingTiles);
 
 	return (
 		<div className="flex justify-between p-3">
 			<div className="text-red-800 text-3xl">
 				Pikachu
 			</div>
-			<div className="text-2xl">
-				Time left: {status === "idle" ? 0 : timeLeft}
-			</div>
+			{status === "playing" && (
+				<div className="text-2xl">
+					Time left: {timeLeft} Matches left: {remainingTiles}
+				</div>
+			)}
 			<div className="flex gap-2">
-				{status !== "playing" && (
-					<button onClick={() => dispatch({ type: INIT_GAME })} className="w-28 h-10 bg-gray-300 hover:bg-gray-400 active:bg-gray-500 transition-colors">Start</button>
+				{status === "playing" && (
+					<button
+						onClick={() => dispatch({ type: SHUFFLE_BOARD })}
+						className="rounded bg-yellow-300 px-6 py-3 font-semibold text-slate-900 shadow-sm transition hover:bg-yellow-400 active:scale-95"
+					>
+						SHUFFLE BOARD
+					</button>
 				)}
 				{status === "playing" && (
-					<button onClick={() => dispatch({ type: SHUFFLE_BOARD })} className="w-28 h-10 bg-gray-300 hover:bg-gray-400 active:bg-gray-500 transition-colors">Shuffle</button>
-				)}
-				{status === "playing" && (
-					<button onClick={() => dispatch({ type: INIT_GAME })} className="w-28 h-10 bg-gray-300 hover:bg-gray-400 active:bg-gray-500 transition-colors">Restart</button>
+					<button onClick={() => dispatch({ type: INIT_GAME })} className="rounded bg-yellow-300 px-6 py-3 font-semibold text-slate-900 shadow-sm transition hover:bg-yellow-400 active:scale-95">
+						RESTART
+					</button>
 				)}
 			</div>
 		</div>

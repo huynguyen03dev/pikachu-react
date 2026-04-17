@@ -3,6 +3,7 @@ import { useAppDispatch, useAppSelector } from "../../app/hooks"
 import { selectCells, selectCols, selectRows, selectSelectedCellIds, selectMatchPath } from "./boardSlice"
 import { BoardCell } from "./components/BoardCell"
 import { SELLECT_CELL } from "../../saga"
+import Dialog from "./components/Dialog"
 
 interface Point {
   x: number,
@@ -17,6 +18,8 @@ interface Line {
 }
 
 export const Board = (): JSX.Element => {
+  const [dialogState, setDialogState] = useState<null | "win" | "lose">(null);
+
   const cells = useAppSelector(selectCells); 
   const dispatch = useAppDispatch();
   const selectedIds = useAppSelector(selectSelectedCellIds);
@@ -70,6 +73,7 @@ export const Board = (): JSX.Element => {
 
   return (
     <main ref={mainRef} className="relative p-4 flex-1">
+      <Dialog />
       <div className="grid place-items-center mt-10">
         <div ref={boardRef} className="grid grid-cols-12 gap-1 w-[min(92vw,720px)] bg-gray-300">
           {cells.map((cell) => {

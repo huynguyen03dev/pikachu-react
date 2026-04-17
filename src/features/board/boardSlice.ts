@@ -1,6 +1,6 @@
 import type { PayloadAction } from "@reduxjs/toolkit"
 import { createAppSlice } from "../../app/createAppSlice"
-import { getPath } from "./pathfinding"
+import { MAX_TILE_TYPE } from "../../utils/constants"
 
 export interface Cell {
   id: number,
@@ -71,7 +71,7 @@ const createShuffledCells = (rows: number, cols: number): Cell[] => {
     throw new Error("rows * cols must be even")
   }
 
-  const totalTileTypes = 60
+  const totalTileTypes = MAX_TILE_TYPE;
   const pairCount = totalCells / 2
   let tiles: number[] = []
 
@@ -157,7 +157,7 @@ export const boardSlice = createAppSlice({
       for (let id of action.payload) {
         state.cells[id].kind = "empty";
         state.cells[id].kind = "empty";
-        state.remainingTiles -= 2;
+        state.remainingTiles -= 1;
       }
 
       if (state.remainingTiles === 0) {
