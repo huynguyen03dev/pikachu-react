@@ -1,5 +1,6 @@
 import type { PayloadAction } from "@reduxjs/toolkit"
 import { createAppSlice } from "../../app/createAppSlice"
+import { getPath } from "./pathfinding"
 
 export interface Cell {
   id: number,
@@ -12,7 +13,7 @@ export type BoardSliceState = {
   cols: number,
   status: "idle" | "playing" | "won" | "lost",
   cells: Cell[],
-  matchPath: { x: number, y: number}[],
+  matchPath: { x: number, y: number }[],
   selectedCellIds: number[], //Max 2
   remainingTiles: number,
   shuffleLeft: number,
@@ -38,6 +39,21 @@ const createEmptyCells = (rows: number, cols: number): Cell[] => {
   return cells;
 }
 
+function handleShuffleTiles(cells: Cell[]) {
+  const tiledCells = cells.filter((cell) => cell.kind === "tile");
+  let typeArr: number[] = [];
+
+  for (let cell of tiledCells) {
+    typeArr.push(cell.tileType);
+  }
+
+  typeArr = shuffleRandom(typeArr);
+
+  for (let i = 0; i < typeArr.length; i++) {
+    tiledCells[i].tileType = typeArr[i];
+  }
+}
+
 function shuffleRandom(array: any[]) {
   const result = [...array]
 
@@ -55,7 +71,7 @@ const createShuffledCells = (rows: number, cols: number): Cell[] => {
     throw new Error("rows * cols must be even")
   }
 
-  const totalTileTypes = 6 
+  const totalTileTypes = 60
   const pairCount = totalCells / 2
   let tiles: number[] = []
 
@@ -96,18 +112,18 @@ export const boardSlice = createAppSlice({
   // The `reducers` field lets us define reducers and generate associated actions
   reducers: create => ({
     initBoard: create.reducer((state, action: PayloadAction<{ rows?: number, cols?: number }>) => {
-        state.rows = action.payload.rows ?? DEFAULT_ROWS
-        state.cols = action.payload.cols ?? DEFAULT_COLS
-        state.cells = createShuffledCells(state.rows, state.cols)
-        state.status = "playing"
-        state.selectedCellIds = []
-        state.remainingTiles = state.rows * state.cols
-        state.shuffleLeft = 3
-        state.hintLeft = 3
-        state.moveCount = 0
-        state.timeLimit = 200
-        state.matchPath = []
-        state.timeLeft = 200
+      state.rows = action.payload?.rows ?? DEFAULT_ROWS
+      state.cols = action.payload?.cols ?? DEFAULT_COLS
+      state.cells = createShuffledCells(state.rows, state.cols)
+      state.status = "playing"
+      state.selectedCellIds = []
+      state.remainingTiles = state.rows * state.cols
+      state.shuffleLeft = 3
+      state.hintLeft = 3
+      state.moveCount = 0
+      state.timeLimit = 200
+      state.matchPath = []
+      state.timeLeft = 200
     }),
     doSelectCell: create.reducer((state, action: PayloadAction<number>) => {
       state.selectedCellIds.push(action.payload);
@@ -119,7 +135,7 @@ export const boardSlice = createAppSlice({
       if (state.status !== "playing") {
         return;
       }
-      
+
       if (state.timeLeft <= 0) {
         state.status = "lost"
         return;
@@ -128,25 +144,13 @@ export const boardSlice = createAppSlice({
       state.timeLeft -= 1;
     }),
     shuffle: create.reducer((state) => {
-      const tiledCells = state.cells.filter((cell) => cell.kind === "tile");
-      let typeArr: number[] = [];
-
-      for (let cell of tiledCells) {
-        typeArr.push(cell.tileType);
-      }
-
-      typeArr = shuffleRandom(typeArr);
-
-      for (let i = 0; i < typeArr.length; i++) {
-        tiledCells[i].tileType = typeArr[i];
-      }
-
+      handleShuffleTiles(state.cells);
       state.selectedCellIds = [];
     }),
     removeSelection: create.reducer((state) => {
       state.selectedCellIds = [];
     }),
-    updateMatchPath: create.reducer((state, action: PayloadAction<{ x: number, y: number}[]>) => {
+    updateMatchPath: create.reducer((state, action: PayloadAction<{ x: number, y: number }[]>) => {
       state.matchPath = action.payload;
     }),
     removeMatchPair: create.reducer((state, action: PayloadAction<number[]>) => {
@@ -182,15 +186,15 @@ export const boardSlice = createAppSlice({
 // Action creators are generated for each case reducer function.
 export const { initBoard, doSelectCell, loseGame, tick, shuffle, removeSelection, updateMatchPath, removeMatchPair } = boardSlice.actions;
 
-export const { 
-  selectCells, 
-  selectSelectedCellIds, 
-  selectStatus, 
-  selectHintLeft, 
-  selectRemainingTiles, 
-  selectShuffleLeft, 
-  selectMoveCount, 
-  selectTimeLimit, 
+export const {
+  selectCells,
+  selectSelectedCellIds,
+  selectStatus,
+  selectHintLeft,
+  selectRemainingTiles,
+  selectShuffleLeft,
+  selectMoveCount,
+  selectTimeLimit,
   selectTimeLeft,
   selectRows,
   selectCols,

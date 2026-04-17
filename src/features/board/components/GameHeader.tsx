@@ -1,5 +1,6 @@
 import { useAppDispatch, useAppSelector } from "../../../app/hooks";
-import { initBoard, selectStatus, selectTimeLeft, shuffle } from "../boardSlice";
+import { INIT_GAME, SHUFFLE_BOARD } from "../../../saga";
+import { selectStatus, selectTimeLeft, shuffle } from "../boardSlice";
 
 export const GameHeader = () => {
 	const status = useAppSelector(selectStatus);
@@ -16,11 +17,13 @@ export const GameHeader = () => {
 			</div>
 			<div className="flex gap-2">
 				{status !== "playing" && (
-					<button onClick={() => dispatch(initBoard({}))} className="w-28 h-10 bg-gray-300 hover:bg-gray-400 active:bg-gray-500 transition-colors">Start</button>
+					<button onClick={() => dispatch({ type: INIT_GAME })} className="w-28 h-10 bg-gray-300 hover:bg-gray-400 active:bg-gray-500 transition-colors">Start</button>
 				)}
-				<button onClick={() => dispatch(shuffle())} className="w-28 h-10 bg-gray-300 hover:bg-gray-400 active:bg-gray-500 transition-colors">Shuffle</button>
 				{status === "playing" && (
-					<button onClick={() => dispatch(initBoard({}))} className="w-28 h-10 bg-gray-300 hover:bg-gray-400 active:bg-gray-500 transition-colors">Restart</button>
+					<button onClick={() => dispatch({ type: SHUFFLE_BOARD })} className="w-28 h-10 bg-gray-300 hover:bg-gray-400 active:bg-gray-500 transition-colors">Shuffle</button>
+				)}
+				{status === "playing" && (
+					<button onClick={() => dispatch({ type: INIT_GAME })} className="w-28 h-10 bg-gray-300 hover:bg-gray-400 active:bg-gray-500 transition-colors">Restart</button>
 				)}
 			</div>
 		</div>

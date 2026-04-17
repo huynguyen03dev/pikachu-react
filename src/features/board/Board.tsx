@@ -60,7 +60,6 @@ export const Board = (): JSX.Element => {
         x2: drawpoints[i].x,
         y2: drawpoints[i].y,
       };
-      console.log(line);1
       setLineList(prev => [...prev, line]);
     }
 
