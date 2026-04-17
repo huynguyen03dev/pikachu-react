@@ -1,5 +1,5 @@
 import { createSelector } from "@reduxjs/toolkit";
-import { Cell, selectCells, selectCols, selectRows } from "./boardSlice";
+import { Cell, selectCells, selectCols, selectRemainingTiles, selectRows, selectStatus } from "./boardSlice";
 import { getPath } from "./pathfinding";
 
 const findAnyMatchablePair = (cells: Cell[], rows: number, cols: number): { x: number, y: number } | null => {
@@ -23,4 +23,14 @@ const findAnyMatchablePair = (cells: Cell[], rows: number, cols: number): { x: n
 export const selectMatchablePair = createSelector(
 	[selectCells, selectRows, selectCols],
 	(cells : Cell[], rows: number, cols: number) => findAnyMatchablePair(cells, rows, cols)
+)
+
+export const selectIsGameEnd = createSelector(
+  [selectStatus],
+  (status) => status === "won" || status === "lost"
+)
+
+export const selectMatchesRemaining = createSelector(
+  [selectRemainingTiles],
+  (remainingTiles) => remainingTiles / 2
 )

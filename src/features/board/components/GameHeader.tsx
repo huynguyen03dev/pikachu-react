@@ -1,22 +1,28 @@
 import { useAppDispatch, useAppSelector } from "../../../app/hooks";
 import { INIT_GAME, SHUFFLE_BOARD } from "../../../saga";
-import { selectStatus, selectTimeLeft, shuffle } from "../boardSlice";
+import { selectMatchesRemaining } from "../boardSelectors";
+import { selectStatus, selectTimeLeft } from "../boardSlice";
 
 export const GameHeader = () => {
 	const status = useAppSelector(selectStatus);
 	const dispatch = useAppDispatch();
 	const timeLeft = useAppSelector(selectTimeLeft);
-	const remainingTiles = useAppSelector(state => state.board.remainingTiles);
+	const remainingMatches = useAppSelector(selectMatchesRemaining);
 
 	return (
-		<div className="flex justify-between p-3">
+		<div className="flex justify-between p-3 shadow items-center">
 			<div className="text-red-800 text-3xl">
 				Pikachu
 			</div>
 			{status === "playing" && (
-				<div className="text-2xl">
-					Time left: {timeLeft} Matches left: {remainingTiles}
-				</div>
+				<>
+					<div className="text-xl mr-1">
+						Time left: {timeLeft}
+					</div>
+					<div className="text-xl">
+						Matches left: {remainingMatches}
+					</div>
+				</>
 			)}
 			<div className="flex gap-2">
 				{status === "playing" && (

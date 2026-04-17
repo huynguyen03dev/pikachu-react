@@ -1,11 +1,13 @@
 import { useAppDispatch, useAppSelector } from "../../../app/hooks";
 import { INIT_GAME } from "../../../saga";
+import { selectIsGameEnd } from "../boardSelectors";
 import { selectStatus } from "../boardSlice";
 
 export default function Dialog() {
 	const status = useAppSelector(selectStatus);
+	const isGameEnd = useAppSelector(selectIsGameEnd);
 
-	if (status === "playing") {
+	if (!isGameEnd) {
 		return null;
 	}
 

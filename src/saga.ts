@@ -3,7 +3,7 @@ import { SagaIterator } from 'redux-saga'
 import { put, takeEvery, all, select, delay, takeLatest } from 'redux-saga/effects'
 import { Cell, doSelectCell, initBoard, removeMatchPair, removeSelection, selectCells, selectCols, selectRows, selectSelectedCellIds, selectStatus, shuffle, updateMatchPath } from './features/board/boardSlice'
 import { getPath } from './features/board/pathfinding'
-import { selectMatchablePair } from './features/board/boardSelect'
+import { selectMatchablePair } from './features/board/boardSelectors'
 
 export const SELLECT_CELL = "SELECT_CELL";
 export const CHECK_MATCHABLE_PAIR = "CHECK_MATCHABLE_PAIR";
@@ -81,8 +81,6 @@ export function* checkForMatchablePair() : SagaIterator {
         return;
     }
 
-    const cells: Cell[] = yield select(selectCells);
-    const rows = yield select(selectRows);
     const cols = yield select(selectCols);
 
     const pair = yield select(selectMatchablePair);
