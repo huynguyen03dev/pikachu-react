@@ -29,17 +29,27 @@ export default function MatchLine({ boardRef, mainRef }: { boardRef: React.RefOb
 
   const [lineList, setLineList] = useState<Line[]>([]);
   const calculateBoardCenter = (boardRef: React.RefObject<HTMLElement | null>, mainRef: React.RefObject<HTMLElement | null>) => {
-    let rect = boardRef.current?.getBoundingClientRect();
-    let main = mainRef.current?.getBoundingClientRect();
+    let boardRect = boardRef.current?.getBoundingClientRect();
+    let mainRect = mainRef.current?.getBoundingClientRect();
+
+    if (!boardRect || !mainRect) {
+      throw new Error("Board or main ref is not attached");
+    }
 
     return {
-      x: rect ? rect.left + rect.width / 2 - main.left : 0,
-      y: rect ? rect.top + rect.height / 2 - main.top : 0,
+      x: boardRect ? boardRect.left + boardRect.width / 2 - mainRect.left : 0,
+      y: boardRect ? boardRect.top + boardRect.height / 2 - mainRect.top : 0,
     }
   };
 
   useEffect(() => {
-    const cellSize = boardRef.current?.getBoundingClientRect().width / cols || 0;
+    const boardRect = boardRef.current?.getBoundingClientRect();
+
+    if (!boardRect) {
+      throw new Error("Board ref is not attached");
+    }
+
+    const cellSize = boardRect.width / cols || 0;
     const center = calculateBoardCenter(boardRef, mainRef);
     const drawpoints = matchPath.map(point => pointToPixelCoords(point, center, cellSize));
 
