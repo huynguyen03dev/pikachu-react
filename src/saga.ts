@@ -2,8 +2,7 @@ import { PayloadAction } from '@reduxjs/toolkit'
 import { SagaIterator } from 'redux-saga'
 import { put, takeEvery, all, select, delay, takeLatest } from 'redux-saga/effects'
 import { Cell, doSelectCell, initBoard, removeMatchPair, removeSelection, selectCells, selectCols, selectRows, selectSelectedCellIds, selectStatus, shuffle, updateMatchPath } from './features/board/boardSlice'
-import { getPath } from './features/board/pathfinding'
-import { selectMatchablePair } from './features/board/boardSelectors'
+import { selectMatchablePairs } from './features/board/boardSelectors'
 
 export const SELLECT_CELL = "SELECT_CELL";
 export const CHECK_MATCHABLE_PAIR = "CHECK_MATCHABLE_PAIR";
@@ -42,12 +41,10 @@ export function* selectCell(action: PayloadAction<number>) : SagaIterator {
     }
 
     // same type, check if they can be matched
-    const rows = yield select(selectRows);
-    const cols = yield select(selectCols);
+    const pairs: {pair: Set<number>, path: { x: number, y: number}[] }[]| null = yield select(selectMatchablePairs);
+    const match = pairs?.find(pair => pair.pair.has(firstCell.id) && pair.pair.has(secondCell.id));
 
-    const path = getPath(cells, rows, cols, firstCell.id, secondCell.id);
-
-    if (!path) {
+    if (!match) {
         // Cannot match, deselect
         yield put({ type: removeSelection.type });
         return;
@@ -55,7 +52,7 @@ export function* selectCell(action: PayloadAction<number>) : SagaIterator {
 
     // Can match
     yield put({ type: doSelectCell.type, payload: secondCell.id });
-    yield put({ type: updateMatchPath.type, payload: path });
+    yield put({ type: updateMatchPath.type, payload: match.path });
 
     yield delay(300);
 
@@ -83,14 +80,16 @@ export function* checkForMatchablePair() : SagaIterator {
 
     const cols = yield select(selectCols);
 
-    const pair = yield select(selectMatchablePair);
+    const match = yield select(selectMatchablePairs);
+
+    const pair: Array<number> = match ? Array.from(match[0].pair) : [];
 
     console.log(
-        `Checking for matchable pair, found: ${pair?.x}, ${pair?.y} ` + 
-        `[${Math.floor(pair?.x / cols)}, ${pair?.x % cols}], [${Math.floor(pair?.y / cols)}, ${pair?.y % cols}]`
+        `Checking for matchable pair, found: ${pair[0]}, ${pair[1]} ` + 
+        `[${Math.floor(pair[0] / cols)}, ${pair[0] % cols}], [${Math.floor(pair[1] / cols)}, ${pair[1] % cols}]`
     );
 
-    if (pair) {
+    if (match) {
         // Found a matchable pair, do nothing
         return;
     }
