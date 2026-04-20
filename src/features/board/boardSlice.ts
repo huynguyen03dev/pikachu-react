@@ -1,6 +1,6 @@
 import type { PayloadAction } from "@reduxjs/toolkit"
 import { createAppSlice } from "../../app/createAppSlice"
-import { MAX_TILE_TYPE } from "../../utils/constants"
+import { MAX_TILE_TYPE, TIME_LIMIT } from "../../utils/constants"
 
 export interface Cell {
   id: number,
@@ -121,9 +121,9 @@ export const boardSlice = createAppSlice({
       state.shuffleLeft = 3
       state.hintLeft = 3
       state.moveCount = 0
-      state.timeLimit = 200
+      state.timeLimit = TIME_LIMIT
       state.matchPath = []
-      state.timeLeft = 200
+      state.timeLeft = TIME_LIMIT
     }),
     doSelectCell: create.reducer((state, action: PayloadAction<number>) => {
       state.selectedCellIds.push(action.payload);

@@ -6,19 +6,17 @@ import { SELLECT_CELL } from "../../saga"
 import Dialog from "./components/Dialog"
 import MatchLine from "./components/MatchLine"
 
-
-
 export const Board = (): JSX.Element => {
   const cells = useAppSelector(selectCells); 
   const dispatch = useAppDispatch();
   const selectedIds = useAppSelector(selectSelectedCellIds);
+  const boardRef = useRef<HTMLDivElement | null>(null);
+  const mainRef = useRef<HTMLElement | null>(null);
 
   const handleSelect = useCallback((cellId: number) => {
     dispatch({ type: SELLECT_CELL, payload: cellId });
   }, [dispatch]);
 
-  const boardRef = useRef<HTMLDivElement | null>(null);
-  const mainRef = useRef<HTMLElement | null>(null);
 
   return (
     <main ref={mainRef} className="relative p-4 flex-1">

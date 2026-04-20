@@ -6,12 +6,11 @@ import { selectStatus } from "../boardSlice";
 export default function Dialog() {
 	const status = useAppSelector(selectStatus);
 	const isGameEnd = useAppSelector(selectIsGameEnd);
+	const dispatch = useAppDispatch();
 
 	if (!isGameEnd) {
 		return null;
 	}
-
-	const dispatch = useAppDispatch();
 
 	return (
 		<div className="absolute top-0 left-0 w-full h-full bg-black/40 flex items-center justify-center z-10">
